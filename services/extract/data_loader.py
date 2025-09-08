@@ -1,16 +1,12 @@
-from google.cloud import storage
 import pyarrow as pa
 import pandas as pd
 
 class DataLoader:
-    def __init__(self, context, data, bucket_name):
+    def __init__(self, context):
         self.context = context
-        self.data = data
-        self.bucket_name = bucket_name
-        self.client = storage.Client()
     
-    def load(self, filename):
+    def load(self, file_path, bucket_name):
         pass
-    
-    def drop(self, filename):
+
+    def drop(self, file_path):
         pass

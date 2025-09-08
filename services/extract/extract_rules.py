@@ -1,11 +1,10 @@
 
-
-def rules(extractor):
+def rules(controller):
     return {
         "alphavantage": {
-            "method": extractor.alphavantage_extract
+            "method": controller.extractor.alphavantage_extract
         },
         "yfinance": {
-            "method": extractor.yfinance_extract
+            "method": controller.extractor.yfinance_extract
         }
     }

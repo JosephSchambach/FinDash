@@ -8,14 +8,16 @@ os.environ['PATH_TO_CREDENTIALS'] = 'path/to/your/service-account-file.json'
 os.environ['GCS_BUCKET_NAME'] = 'your-gcs-bucket-name'
 os.environ['GCP_PROJECT_ID'] = 'your-gcp-project-id'
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 class Context:
     def __init__(self):
-        self.logger = logging.getLogger().setLevel(logging.INFO)
-        self.__credential_path = os.getenv("PATH_TO_CREDENTIALS")
-        self.__credentials = service_account.Credentials.from_service_account_file(self.__credential_path)
-        self.__project_id = os.getenv("GCP_PROJECT_ID")
-        self.bigquery = self.__get_bigquery()
-        self.storage = self.__get_storage()
+        self.logger = logger
+        # self.__credential_path = os.getenv("PATH_TO_CREDENTIALS")
+        # self.__credentials = service_account.Credentials.from_service_account_file(self.__credential_path)
+        # self.__project_id = os.getenv("GCP_PROJECT_ID")
+        # self.bigquery = self.__get_bigquery()
+        # self.storage = self.__get_storage()
         
     def __get_storage(self):
         try:

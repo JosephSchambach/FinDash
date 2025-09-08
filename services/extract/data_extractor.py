@@ -1,23 +1,47 @@
+import os 
+
+working_dir = os.path.dirname(os.path.abspath(__file__))
+
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+import yfinance as yf
+import requests as req
+from alpha_vantage_api import AlphaVantage
+
 
 class DataExtractor:
     def __init__(self, context):
         self.context = context
-        self.file = ""
+        self.alpha_vantage = AlphaVantage(self.context.logger)
+        self.file_path = os.path.join(working_dir, 'extracted_data.parquet')
         self.dataframe = pd.DataFrame() 
     
-    def alphavantage_extract(self, symbol):
-        pass
+    def alphavantage_extract(self, symbol, period):
+        data = self.alpha_vantage.fetch_stock_price(symbol, period)
+        return data
 
-    def yfinance_extract(self, symbol):
-        pass
-    
+    def yfinance_extract(self, symbol, period):
+        try:
+            data = yf.download(tickers=symbol, period=period)
+            data = data.rename(columns={
+                "Open": "open",
+                "High": "high",
+                "Low": "low",
+                "Close": "close",
+                "Volume": "volume"
+            })
+            return data
+        except Exception as e:
+            self.context.logger.error(f"Error extracting data from yfinance: {e}")
+            return pd.DataFrame()
+
     def append(self, raw_data):
-        pass
-    
+        try:
+            self.dataframe = pd.concat([self.dataframe, raw_data], axis=0, ignore_index=True)
+        except Exception as e:
+            self.context.logger.error(f"Error appending data: {e}")
+
     def save(self):
         table = pa.Table.from_pandas(self.dataframe)
-        pq.write_table(table, 'extracted_data.parquet')
-        self.file = 'extracted_data.parquet'
+        pq.write_table(table, self.file_path)
