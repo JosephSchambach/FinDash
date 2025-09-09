@@ -26,6 +26,7 @@ class AlphaVantage:
                     "4. close": "close",
                     "5. volume": "volume"
                 })
+                df['symbol'] = symbol.upper()
                 return df
             return data
         except Exception as e:
