@@ -20,14 +20,8 @@ class ExtractController:
         # - source: string (alphavantage or yfinance)
         # - interval: string (1m, 5m, 1h, 1d)
         # - lookback: 
-        extract_config = pd.DataFrame(
-            {
-                "id": [1, 2],
-                "symbol": ["AAPL", "GOOGL"],
-                "source": ["alphavantage", "yfinance"],
-                "period": ["5min", "1d"]
-            }
-        )
+        extract_config = self.context.storage.table('extract_config').select('*').execute()
+        extract_config = pd.DataFrame(extract_config.data)
         for index, row in extract_config.iterrows():
             self.context.logger.info(f"Processing {row['symbol']} from {row['source']}")
             rules = self.rules.get(row["source"])
