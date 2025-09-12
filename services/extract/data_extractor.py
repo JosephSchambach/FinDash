@@ -8,6 +8,7 @@ import pyarrow.parquet as pq
 import yfinance as yf
 import requests as req
 from alpha_vantage_api import AlphaVantage
+from models import parse_yfinance, validated_data
 
 
 class DataExtractor:
@@ -24,19 +25,9 @@ class DataExtractor:
     def yfinance_extract(self, symbol, period):
         try:
             data = yf.download(tickers=symbol, period=period)
-            data.columns = data.columns.to_flat_index()
-            lookup = {
-                ("Open", symbol.upper()): "open",
-                ("High", symbol.upper()): "high",
-                ("Low", symbol.upper()): "low",
-                ("Close", symbol.upper()): "close",
-                ("Volume", symbol.upper()): "volume"
-            }
-            data = data.rename(columns=lookup)
-            data['symbol'] = symbol.upper()
-            if "Price" in data.columns:
-                data = data.drop(columns=["Price"])
-            return data
+            data = parse_yfinance(data, symbol)
+            df = validated_data(data)
+            return df
         except Exception as e:
             self.context.logger.error(f"Error extracting data from yfinance: {e}")
             return pd.DataFrame()
@@ -48,13 +39,8 @@ class DataExtractor:
             self.context.logger.error(f"Error appending data: {e}")
 
     def save(self):
-        mapping = {
-            "open": float,
-            "close": float,
-            "high": float,
-            "low": float,
-            "volume": float
-        }
-        cleaned_data = self.dataframe.astype(mapping)
-        table = pa.Table.from_pandas(cleaned_data)
-        pq.write_table(table, self.file_path)
+        try:
+            table = pa.Table.from_pandas(self.dataframe)
+            pq.write_table(table, self.file_path)
+        except Exception as e:
+            self.context.logger.error(f"Error saving data: {e}")

@@ -38,8 +38,12 @@ class ExtractController:
             else:
                 self.context.logger.warning(f"No extraction method found for {row['source']}")
         self.extractor.save()
-        self.loader.load(self.extractor.file_path, 'raw_extract_data')
-        self.loader.drop(self.extractor.file_path)
+        loaded = self.loader.load(self.extractor.file_path, 'raw_extract_data')
+        if loaded:
+            self.context.logger.info("File loaded successfully")
+            self.loader.drop(self.extractor.file_path)
+        else:
+            self.context.logger.error("File failed to load")
 
 if __name__ == "__main__":
     controller = ExtractController()

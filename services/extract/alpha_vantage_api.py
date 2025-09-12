@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import requests
 import pandas as pd
+from models import parse_alpha_vantage, validated_data
 import os
 
 load_dotenv()
@@ -17,16 +18,9 @@ class AlphaVantage:
             response = requests.get(url)
             data = response.json()
             if f"Time Series ({interval})" in data:
-                df = pd.DataFrame.from_dict(data[f"Time Series ({interval})"], orient="index")
-                df.index = pd.to_datetime(df.index)
-                df = df.rename(columns={
-                    "1. open": "open",
-                    "2. high": "high",
-                    "3. low": "low",
-                    "4. close": "close",
-                    "5. volume": "volume"
-                })
-                df['symbol'] = symbol.upper()
+                data = data[f"Time Series ({interval})"]
+                data = parse_alpha_vantage(data, symbol)
+                df = validated_data(data)
                 return df
             return data
         except Exception as e:
