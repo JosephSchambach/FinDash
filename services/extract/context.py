@@ -5,10 +5,6 @@ from supabase import create_client, Client
 import os
 import logging
 
-os.environ['PATH_TO_CREDENTIALS'] = 'path/to/your/service-account-file.json'
-os.environ['GCS_BUCKET_NAME'] = 'your-gcs-bucket-name'
-os.environ['GCP_PROJECT_ID'] = 'your-gcp-project-id'
-
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 class Context:
