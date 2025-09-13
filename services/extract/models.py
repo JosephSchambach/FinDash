@@ -12,37 +12,47 @@ class StockData(BaseModel):
     close: float = Field(alias="close")
     volume: int
 
-def parse_alpha_vantage(time_series: dict, symbol: str) -> List[StockData]:
+def parse_alpha_vantage(time_series: dict, symbol: str, logger) -> List[StockData]:
     records = []
     for ts, values in time_series.items():
+        try:
+            open = round(float(values["1. open"]), 2)
+            high = round(float(values["2. high"]), 2)
+            low = round(float(values["3. low"]), 2)
+            close = round(float(values["4. close"]), 2)
+            volume = int(values["5. volume"])
+        except KeyError as e:
+            logger.error(f"Missing key {e} in Alpha Vantage data")
+            continue
+        except ValueError as e:
+            logger.error(f"Value error {e} in Alpha Vantage data")
+            continue
         records.append(
             StockData(
                 symbol=symbol,
                 timestamp=datetime.strptime(ts, "%Y-%m-%d %H:%M:%S"),
-                open=round(float(values["1. open"]), 2),
-                high=round(float(values["2. high"]), 2),
-                low=round(float(values["3. low"]), 2),
-                close=round(float(values["4. close"]), 2),
-                volume=int(values["5. volume"])
+                open=open,
+                high=high,
+                low=low,
+                close=close,
+                volume=volume
             )
         )
     return records
 
-def parse_yfinance(df: pd.DataFrame, symbol: str) -> List[StockData]:
+def parse_yfinance(df: pd.DataFrame, symbol: str, logger) -> List[StockData]:
     records = []
-    for idx, row in df.iterrows():
-        records.append(
-            StockData(
-                symbol=symbol,
-                timestamp=idx.to_pydatetime(),
-                open=round(float(row["Open"]) if not hasattr(row["Open"], "iloc") else float(row["Open"].iloc[0]), 2),
-                high=round(float(row["High"]) if not hasattr(row["High"], "iloc") else float(row["High"].iloc[0]), 2),
-                low=round(float(row["Low"]) if not hasattr(row["Low"], "iloc") else float(row["Low"].iloc[0]), 2),
-                close=round(float(row["Close"]) if not hasattr(row["Close"], "iloc") else float(row["Close"].iloc[0]), 2),
-                volume=int(row["Volume"]) if not hasattr(row["Volume"], "iloc") else int(row["Volume"].iloc[0])
-
-            )
+    def parse_row(row):
+        return StockData(
+            symbol=symbol,
+            timestamp=row.name,
+            open=round(float(row["Open"].iloc[0]), 2),
+            high=round(float(row["High"].iloc[0]), 2),
+            low=round(float(row["Low"].iloc[0]), 2),
+            close=round(float(row["Close"].iloc[0]), 2),
+            volume=int(row["Volume"].iloc[0])
         )
+    records = df.apply(parse_row, axis=1).tolist()
     return records
 
 def validated_data(data: List[StockData]) -> pd.DataFrame:

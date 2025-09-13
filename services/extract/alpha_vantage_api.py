@@ -19,7 +19,7 @@ class AlphaVantage:
             data = response.json()
             if f"Time Series ({interval})" in data:
                 data = data[f"Time Series ({interval})"]
-                data = parse_alpha_vantage(data, symbol)
+                data = parse_alpha_vantage(data, symbol, self.logger)
                 df = validated_data(data)
                 return df
             return data

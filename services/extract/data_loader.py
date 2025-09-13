@@ -15,7 +15,6 @@ class DataLoader:
         try:
             with open(file_path, 'rb') as file:
                 response = self.context.storage.storage.from_('raw-stock-data').upload(path=storage_file_path, file=file, file_options={"upsert": "true"})
-            file.close()
             return True
         except Exception as e:
             self.context.logger.error(f"Error uploading file to GCS: {e}")

@@ -26,7 +26,7 @@ class DataExtractor:
     def yfinance_extract(self, symbol, period):
         try:
             data = yf.download(tickers=symbol, period=period)
-            data = parse_yfinance(data, symbol)
+            data = parse_yfinance(data, symbol, self.context.logger)
             df = validated_data(data)
             return df
         except Exception as e:
