@@ -16,6 +16,7 @@ class DataExtractor:
         self.context = context
         self.alpha_vantage = AlphaVantage(self.context.logger)
         self.file_path = os.path.join(working_dir, 'extracted_data.parquet')
+        self.dataframe_list = []
         self.dataframe = pd.DataFrame() 
     
     def alphavantage_extract(self, symbol, period):
@@ -34,12 +35,13 @@ class DataExtractor:
 
     def append(self, raw_data):
         try:
-            self.dataframe = pd.concat([self.dataframe, raw_data], axis=0, ignore_index=True)
+            self.dataframe_list.append(raw_data)
         except Exception as e:
             self.context.logger.error(f"Error appending data: {e}")
 
     def save(self):
         try:
+            self.dataframe = pd.concat(self.dataframe_list, axis=0, ignore_index=True)
             table = pa.Table.from_pandas(self.dataframe)
             pq.write_table(table, self.file_path)
         except Exception as e:
