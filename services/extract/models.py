@@ -13,6 +13,9 @@ class StockData(BaseModel):
     volume: int
 
 def parse_alpha_vantage(time_series: dict, symbol: str, logger) -> List[StockData]:
+    if time_series is None or not isinstance(time_series, dict):
+        logger.warning(f"Invalid time series data for symbol: {symbol}")
+        return []
     records = []
     for ts, values in time_series.items():
         try:
@@ -41,7 +44,9 @@ def parse_alpha_vantage(time_series: dict, symbol: str, logger) -> List[StockDat
     return records
 
 def parse_yfinance(df: pd.DataFrame, symbol: str, logger) -> List[StockData]:
-    records = []
+    if df.empty:
+        logger.warning(f"No data returned from yfinance for symbol: {symbol}")
+        return []
     def parse_row(row):
         return StockData(
             symbol=symbol,

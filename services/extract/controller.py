@@ -20,14 +20,21 @@ class ExtractController:
         # - source: string (alphavantage or yfinance)
         # - interval: string (1m, 5m, 1h, 1d)
         # - lookback: 
+        # Doing the below in bigquery would look like this: 
+        # query_job = self.context.bigquery.query("select * from extract_config")
+        # extract_config = query_job.to_dataframe()
         extract_config = self.context.storage.table('extract_config').select('*').execute()
         extract_config = pd.DataFrame(extract_config.data)
         for index, row in extract_config.iterrows():
             self.context.logger.info(f"Processing {row['symbol']} from {row['source']}")
             rules = self.rules.get(row["source"])
-            source = rules.get("method")
-            if source: 
-                raw_data = source(row["symbol"], row['period'])
+            try:
+                method = rules.get("method")
+            except Exception as e:
+                self.context.logger.error(f"Error getting method for {row['source']}: {e}")
+                continue
+            if method: 
+                raw_data = method(row["symbol"], row['period'])
                 self.extractor.append(raw_data)
             else:
                 self.context.logger.warning(f"No extraction method found for {row['source']}")
