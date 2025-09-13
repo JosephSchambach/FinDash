@@ -25,4 +25,4 @@ class AlphaVantage:
             return data
         except Exception as e:
             self.logger.error(f"Error fetching stock price: {e}")
-            return {"error": str(e)}
+            return {}

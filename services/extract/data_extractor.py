@@ -34,10 +34,11 @@ class DataExtractor:
             return pd.DataFrame()
 
     def append(self, raw_data):
-        try:
-            self.dataframe_list.append(raw_data)
-        except Exception as e:
-            self.context.logger.error(f"Error appending data: {e}")
+        if not raw_data.empty:
+            try:
+                self.dataframe_list.append(raw_data)
+            except Exception as e:
+                self.context.logger.error(f"Error appending data: {e}")
 
     def save(self):
         try:

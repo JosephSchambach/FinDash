@@ -61,4 +61,6 @@ def parse_yfinance(df: pd.DataFrame, symbol: str, logger) -> List[StockData]:
     return records
 
 def validated_data(data: List[StockData]) -> pd.DataFrame:
-    return pd.DataFrame([item.dict() for item in data])
+    if data != []:
+        return pd.DataFrame([item.dict() for item in data])
+    return pd.DataFrame()
