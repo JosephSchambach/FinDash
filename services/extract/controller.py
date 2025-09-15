@@ -13,13 +13,6 @@ class ExtractController:
         
     def run(self):
         self.context.logger.info("Starting Extract Process")
-        # extract_config = self.context.bigquery.query("select * from extract_config")
-        # extract config will be table with the following columns and sample data
-        # - id: integer
-        # - symbol: string 
-        # - source: string (alphavantage or yfinance)
-        # - interval: string (1m, 5m, 1h, 1d)
-        # - lookback: 
         # Doing the below in bigquery would look like this: 
         # query_job = self.context.bigquery.query("select * from extract_config")
         # extract_config = query_job.to_dataframe()
@@ -49,3 +42,4 @@ class ExtractController:
 if __name__ == "__main__":
     controller = ExtractController()
     controller.run()
+    controller.context.logger.info("Extract Process Completed")

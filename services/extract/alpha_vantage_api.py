@@ -1,10 +1,7 @@
-from dotenv import load_dotenv
 import requests
 import pandas as pd
 from models import parse_alpha_vantage, validated_data
 import os
-
-load_dotenv()
 
 class AlphaVantage:
     def __init__(self, logger): 
@@ -22,6 +19,7 @@ class AlphaVantage:
                 data = parse_alpha_vantage(data, symbol, self.logger)
                 df = validated_data(data)
                 return df
+            self.logger.warning(f"Unexpected data format for {symbol}: {interval}")
             return data
         except Exception as e:
             self.logger.error(f"Error fetching stock price: {e}")

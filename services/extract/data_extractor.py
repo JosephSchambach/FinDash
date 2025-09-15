@@ -34,11 +34,13 @@ class DataExtractor:
             return pd.DataFrame()
 
     def append(self, raw_data):
-        if not raw_data.empty:
+        if isinstance(raw_data, pd.DataFrame) and not raw_data.empty:
             try:
                 self.dataframe_list.append(raw_data)
             except Exception as e:
                 self.context.logger.error(f"Error appending data: {e}")
+        else:
+            self.context.logger.warning("Received empty or invalid DataFrame, skipping append.")
 
     def save(self):
         try:
