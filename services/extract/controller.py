@@ -27,7 +27,7 @@ class ExtractController:
                 self.context.logger.error(f"Error getting method for {row['source']}: {e}")
                 continue
             if method: 
-                raw_data = method(row["symbol"], row['period'])
+                raw_data = method(row["symbol"], row['period'], row['function'])
                 self.extractor.append(raw_data)
             else:
                 self.context.logger.warning(f"No extraction method found for {row['source']}")

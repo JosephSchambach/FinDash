@@ -9,8 +9,8 @@ class AlphaVantage:
         self.api_key = os.getenv("ALPHAVANTAGE_API_KEY")
         self.base_url = os.getenv("ALPHAVANTAGE_BASE_URL")
         
-    def fetch_stock_price(self, symbol, interval):
-        url = f"{self.base_url}function=TIME_SERIES_INTRADAY&symbol={symbol}&interval={interval}&apikey={self.api_key}"
+    def fetch_stock_price(self, symbol, interval, function):
+        url = f"{self.base_url}function={function}&symbol={symbol}&interval={interval}&apikey={self.api_key}"
         try:
             response = requests.get(url)
             data = response.json()

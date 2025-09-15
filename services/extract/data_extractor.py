@@ -19,11 +19,11 @@ class DataExtractor:
         self.dataframe_list = []
         self.dataframe = pd.DataFrame() 
     
-    def alphavantage_extract(self, symbol, period):
-        data = self.alpha_vantage.fetch_stock_price(symbol, period)
+    def alphavantage_extract(self, symbol, period, function):
+        data = self.alpha_vantage.fetch_stock_price(symbol, period, function)
         return data
 
-    def yfinance_extract(self, symbol, period):
+    def yfinance_extract(self, symbol, period, function):
         try:
             data = yf.download(tickers=symbol, period=period)
             data = parse_yfinance(data, symbol, self.context.logger)
