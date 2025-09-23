@@ -13,6 +13,7 @@ WITH sma AS (
     symbol, 
     recorded_time, 
     close,
+    volume,
     AVG(close) OVER (
       PARTITION BY symbol 
       ORDER BY recorded_time 
@@ -78,24 +79,24 @@ sql_rsi AS (
     END AS sql_rsi
   FROM rsi_sma
 ),
-price_vol as (
-  select *,
-    close * volume as total
-  from sql_rsi
+price_vol AS (
+  SELECT *,
+    close * volume AS total
+  FROM sql_rsi
 ),
-agg_price_vol as (
-  select *,
-    sum(total) over (partition by symbol order by recorded_time rows between 13 preceding and current row) as total_price,
-    sum(volume) over (partition by symbol order by recorded_time rows between 13 preceding and current row) as total_volume
-  from price_vol
-), sql_vwap as (
-  select *,
-    total_price / total_volume as vwap
-  from agg_price_vol
+agg_price_vol AS (
+  SELECT *,
+    SUM(total) OVER (PARTITION BY symbol ORDER BY recorded_time ROWS BETWEEN 13 PRECEDING AND CURRENT ROW) AS total_price,
+    SUM(volume) OVER (PARTITION BY symbol ORDER BY recorded_time ROWS BETWEEN 13 PRECEDING AND CURRENT ROW) AS total_volume
+  FROM price_vol
+), sql_vwap AS (
+  SELECT *,
+    total_price / total_volume AS vwap
+  FROM agg_price_vol
 )
-select * 
-from sql_vwap
-order by symbol, recorded_time
+SELECT * 
+FROM sql_vwap
+ORDER BY symbol, recorded_time;
 """
 
 # Execute the SQL query and load into DataFrame
